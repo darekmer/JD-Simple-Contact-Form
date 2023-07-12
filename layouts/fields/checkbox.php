@@ -7,6 +7,9 @@
  */
 // no direct access
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Language\Text;
+
 extract($displayData);
 $options = ModJDSimpleContactFormHelper::getOptions($field->options);
 $attrs = [];
@@ -14,9 +17,9 @@ $attrs[] = 'id="' . $field->name . '-' . $module->id .'"';
 if ($field->required) {
     $attrs[] = 'required';
     if (isset($field->custom_error) && !empty(trim($field->custom_error))) {
-       $attrs[] = 'data-parsley-required-message="' . JText::sprintf($field->custom_error) . '"';
+       $attrs[] = 'data-parsley-required-message="' . Text::sprintf($field->custom_error) . '"';
     } else {
-       $attrs[] = 'data-parsley-required-message="' . JText::sprintf('MOD_JDSCF_REQUIRED_ERROR', strip_tags($label)) . '"';
+       $attrs[] = 'data-parsley-required-message="' . Text::sprintf('MOD_JDSCF_REQUIRED_ERROR', strip_tags($label)) . '"';
     }
 }
 ?>
