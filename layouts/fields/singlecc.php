@@ -7,11 +7,14 @@
  */
 // no direct access
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Language\Text;
+
 extract($displayData);
 $singleCCName = $params->get('singleSendCopyEmail_field', '');
 $singleCCTitle = $params->get('singleSendCopyEmailField_title', 'MOD_JDSCF_SINGLE_SEND_COPY_LBL_TITLE');
 ?>
 <div class="form-group form-check">
     <input id="<?php echo $singleCCName; ?>" type="checkbox" name="jdscf[<?php echo $singleCCName; ?>][single_cc]" value="1" />
-    <label for="<?php echo $singleCCName; ?>" class="form-check-label"><?php echo JText::_($singleCCTitle); ?></label>
+    <label for="<?php echo $singleCCName; ?>" class="form-check-label"><?php echo Text::_($singleCCTitle); ?></label>
 </div>
