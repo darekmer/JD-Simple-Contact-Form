@@ -7,41 +7,40 @@
  */
 // no direct access
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Component\ComponentHelper;
+
 extract($displayData);
 $attrs = [];
 $attrs[] = 'id="' . $field->name . '-' . $module->id . '"';
 if ($field->required) {
    $attrs[] = 'required';
    if (isset($field->custom_error) && !empty(trim($field->custom_error))) {
-      $attrs[] = 'data-parsley-required-message="' . JText::sprintf($field->custom_error) . '"';
+      $attrs[] = 'data-parsley-required-message="' . Text::sprintf($field->custom_error) . '"';
    } else {
-      $attrs[] = 'data-parsley-required-message="' . JText::sprintf('MOD_JDSCF_REQUIRED_ERROR', strip_tags($label)) . '"';
+      $attrs[] = 'data-parsley-required-message="' . Text::sprintf('MOD_JDSCF_REQUIRED_ERROR', strip_tags($label)) . '"';
    }
 }
 
 // fetching allowed types
-$params = JComponentHelper::getParams('com_media');
-
-if( ModJDSimpleContactFormHelper::getJoomlaVersion() < 4 ) {
-   $allowable = array_map('trim', explode(',', $params->get('upload_extensions')));
-} else {
-   $allowable = array_map('trim', explode(',', $params->get('restrict_uploads_extensions')));
-}
-
+$params = ComponentHelper::getParams('com_media');
+$allowable = array_map('trim', explode(',', $params->get('restrict_uploads_extensions')));
 $allowedMaxSize = $params->get('upload_maxsize');
-$document = JFactory::getDocument();
+$document = Factory::getDocument();
 $style = '.filesize-err {'
         . 'display: none;'
         . 'margin-top: 10px;'
         . '}'
         . '.custom-file-label::after {'
-        . 'content: "' . JText::sprintf('MOD_JDSCF_FILE_BTN_LBL') . '" !important;'
+        . 'content: "' . Text::sprintf('MOD_JDSCF_FILE_BTN_LBL') . '" !important;'
         . '}';
 $document->addStyleDeclaration($style);
 ?>
 <div class="custom-file">
    <input accept="<?php echo '.' . implode( ',.', $allowable ); ?>" type="file" name="jdscf[<?php echo $field->name; ?>]" class="custom-file-input" <?php echo implode(' ', $attrs); ?>>
-   <label class="custom-file-label" for="<?php echo $field->name; ?>-<?php echo $module->id; ?>"><?php echo JText::_('MOD_JDSCF_FILE_LBL'); ?></label>
+   <label class="custom-file-label" for="<?php echo $field->name; ?>-<?php echo $module->id; ?>"><?php echo Text::_('MOD_JDSCF_FILE_LBL'); ?></label>
 </div>
 
 <div class="filesize-err filesize-error-<?php echo $field->name; ?>-<?php echo $module->id; ?> alert alert-danger alert-dismissable">
