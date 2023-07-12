@@ -9,9 +9,15 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class ModJDSimpleContactFormHelper {
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Session\Session;
+use Joomla\CMS\Filesystem\File;
+use Joomla\Registry\Registry;
+use Joomla\CMS\Component\ComponentHelper;
 
-   const JOOMLA_VERSION = \Joomla\CMS\Version::MAJOR_VERSION;
+class ModJDSimpleContactFormHelper {
 
    public static function renderForm($params, $module) {
       $fields = $params->get('fields', []);
@@ -48,7 +54,7 @@ class ModJDSimpleContactFormHelper {
       if (empty($label)) {
          $label = ucfirst($field->name);
       } else {
-         $label = JText::_($label);
+         $label = Text::_($label);
       }
       return $label;
    }
@@ -67,13 +73,13 @@ class ModJDSimpleContactFormHelper {
    }
 
    public static function submitForm($ajax = false) {
-      if (!JSession::checkToken()) {
-         throw new \Exception(JText::_("JINVALID_TOKEN"));
+      if (!Session::checkToken()) {
+         throw new \Exception(Text::_("JINVALID_TOKEN"));
       }
       if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-         throw new \Exception(JText::_('MOD_JDSCF_BAD_REQUEST'), 400);
+         throw new \Exception(Text::_('MOD_JDSCF_BAD_REQUEST'), 400);
       }
-      $app = JFactory::getApplication();
+      $app = Factory::getApplication();
       $jinput = $app->input->post;
 
       $jdscf = $jinput->get('jdscf', [], 'ARRAY');
@@ -82,37 +88,21 @@ class ModJDSimpleContactFormHelper {
 
       if ($params->get('captcha', 0)) {
 
-         $captchaType = $params->get('captchaPlugins') == "" ? JFactory::getConfig()->get('captcha') : $params->get('captchaPlugins');
-         JPluginHelper::importPlugin('captcha', $captchaType);
-         if( ModJDSimpleContactFormHelper::getJoomlaVersion() < 4 ) {
-            $dispatcher = JEventDispatcher::getInstance();
-         } else {
-            $dispatcher = \Joomla\CMS\Factory::getApplication();
-         }
-
+         $captchaType = $params->get('captchaPlugins') == "" ? Factory::getConfig()->get('captcha') : $params->get('captchaPlugins');
+         PluginHelper::importPlugin('captcha', $captchaType);
+         $dispatcher = Factory::getApplication();
+         
          if ( $captchaType == "recaptcha" ) {
-            if( ModJDSimpleContactFormHelper::getJoomlaVersion() < 4 ) {
-               $check_captcha = $dispatcher->trigger('onCheckAnswer', $jinput->get('recaptcha_response_field'));
-            } else {
-               $check_captcha = $dispatcher->triggerEvent('onCheckAnswer', [ $jinput->get('recaptcha_response_field') ] );
-            }
-            
+            $check_captcha = $dispatcher->triggerEvent('onCheckAnswer', [ $jinput->get('recaptcha_response_field') ] );
+                        
             if (!$check_captcha[0]) {
-               throw new \Exception(JText::_('Invalid Captcha'), 0);
+               throw new \Exception(Text::_('Invalid Captcha'), 0);
             }
          } elseif ( $captchaType == "recaptcha_invisible" ) {
-            if( ModJDSimpleContactFormHelper::getJoomlaVersion() < 4 ) {
-               $check_captcha = $dispatcher->trigger('onCheckAnswer', $jinput->get('g-recaptcha-response'));
-            } else {
-               $check_captcha = $dispatcher->triggerEvent('onCheckAnswer', [ $jinput->get('g-recaptcha-response') ] );
-            }
-            
+            $check_captcha = $dispatcher->triggerEvent('onCheckAnswer', [ $jinput->get('g-recaptcha-response') ] );
+         
          } elseif (!empty($captchaType)) {
-            if( ModJDSimpleContactFormHelper::getJoomlaVersion() < 4 ) {
-               $check_captcha = $dispatcher->trigger('onCheckAnswer');
-            } else {
-               $check_captcha = $dispatcher->triggerEvent('onCheckAnswer', [] );
-            }  
+            $check_captcha = $dispatcher->triggerEvent('onCheckAnswer', [] );
          }
       }
 
@@ -196,7 +186,7 @@ class ModJDSimpleContactFormHelper {
                //filetype error
                if(!empty($value)) {
                   if(!$uploaded) {
-                     $errors[] = JText::_('MOD_JDSCF_UNSUPPORTED_FILE_ERROR');
+                     $errors[] = Text::_('MOD_JDSCF_UNSUPPORTED_FILE_ERROR');
                   }
                }               
                if(!empty($uploaded)) {
@@ -250,8 +240,8 @@ class ModJDSimpleContactFormHelper {
       }
 
       // sending mail
-      $mailer = JFactory::getMailer();
-      $config = JFactory::getConfig();
+      $mailer = Factory::getMailer();
+      $config = Factory::getConfig();
       $title = $params->get('title', '');
       if (!empty($title)) {
          $title = ' : ' . $title;
@@ -281,7 +271,7 @@ class ModJDSimpleContactFormHelper {
       $mailer->setSender($sender);
 
       // Subject
-      $email_subject = !empty($params->get('email_subject', '')) ? $params->get('email_subject') : JText::_('MOD_JDSCF_DEFAULT_SUBJECT', $title);
+      $email_subject = !empty($params->get('email_subject', '')) ? $params->get('email_subject') : Text::_('MOD_JDSCF_DEFAULT_SUBJECT', $title);
       $email_subject = self::renderVariables($contents, $email_subject);
       $mailer->setSubject($email_subject);
 
@@ -328,11 +318,11 @@ class ModJDSimpleContactFormHelper {
          $mailer->addAttachment($attachment);
       }
       if(!empty($errors)) {
-         $app = JFactory::getApplication();
+         $app = Factory::getApplication();
          $send = false;
          // showing all the validation errors
          foreach ($errors as $error) {
-            $app->enqueueMessage(\JText::_($error), 'error');
+            $app->enqueueMessage(\Text::_($error), 'error');
          }
       }
       else {
@@ -342,7 +332,7 @@ class ModJDSimpleContactFormHelper {
       if ($send !== true) {
          switch($params->get('ajaxsubmit'))
          {
-            case 0: throw new \Exception(JText::_('MOD_JDSCFEMAIL_SEND_ERROR'));
+            case 0: throw new \Exception(Text::_('MOD_JDSCFEMAIL_SEND_ERROR'));
             break;
             case 1: throw new \Exception(json_encode($errors));
             break;
@@ -350,7 +340,7 @@ class ModJDSimpleContactFormHelper {
       }
       $message = $params->get('thankyou_message', '');
       if (empty($message)) {
-         $message = JText::_('MOD_JDSCF_THANKYOU_DEFAULT');
+         $message = Text::_('MOD_JDSCF_THANKYOU_DEFAULT');
       } else {
          $template = $params->get('email_custom', '');
          $message = self::renderVariables($contents, $message);
@@ -359,7 +349,7 @@ class ModJDSimpleContactFormHelper {
       $redirect_url = self::renderVariables($contents, $redirect_url);
       if (!$ajax) {
          $return = !empty($redirect_url) ? $redirect_url : urldecode($jinput->get('returnurl', '', 'RAW'));
-         $session = JFactory::getSession();
+         $session = Factory::getSession();
          if (empty($redirect_url)) {
             $session->set('jdscf-message-' . $id, $message);
          } else {
@@ -382,19 +372,19 @@ class ModJDSimpleContactFormHelper {
    }
 
    public static function getModuleParams() {
-      $app = JFactory::getApplication();
+      $app = Factory::getApplication();
       $jinput = $app->input->post;
       $id = $jinput->get('id', 0);
-      $params = new JRegistry();
+      $params = new Registry();
 
-      $db = JFactory::getDbo();
+      $db = Factory::getDbo();
       $query = "SELECT * FROM `#__modules` WHERE `id`='$id'";
       $db->setQuery($query);
       $result = $db->loadObject();
       if (!empty($result)) {
          $params->loadString($result->params, 'JSON');
       } else {
-         throw new \Exception(JText::_('MOD_JDSCF_MODULE_NOT_FOUND'), 404);
+         throw new \Exception(Text::_('MOD_JDSCF_MODULE_NOT_FOUND'), 404);
       }
       return $params;
    }
@@ -403,7 +393,7 @@ class ModJDSimpleContactFormHelper {
       try {
          self::submitForm();
       } catch (\Exception $e) {
-         $app = JFactory::getApplication();
+         $app = Factory::getApplication();
          $params = self::getModuleParams();
          $jinput = $app->input->post;
          $app->enqueueMessage($e->getMessage(), 'error');
@@ -462,18 +452,14 @@ class ModJDSimpleContactFormHelper {
       jimport('joomla.filesystem.file');
       jimport('joomla.application.component.helper');
 
-      $fullFileName = JFile::stripExt($name);
-      $filetype = JFile::getExt($name);
-      $filename = JFile::makeSafe($fullFileName."_".mt_rand(10000000,99999999).".".$filetype);
+      $fullFileName = File::stripExt($name);
+      $filetype = File::getExt($name);
+      $filename = File::makeSafe($fullFileName."_".mt_rand(10000000,99999999).".".$filetype);
 
-      $params = JComponentHelper::getParams('com_media');
+      $params = ComponentHelper::getParams('com_media');
       
-      if( ModJDSimpleContactFormHelper::getJoomlaVersion() < 4 ) {
-         $allowable = array_map('trim', explode(',', $params->get('upload_extensions')));
-      } else {
-         $allowable = array_map('trim', explode(',', $params->get('restrict_uploads_extensions')));
-      }
-
+      $allowable = array_map('trim', explode(',', $params->get('restrict_uploads_extensions')));
+      
       if ($filetype == '' || $filetype == false || (!in_array($filetype, $allowable) ))
       {
          return false;
@@ -491,15 +477,12 @@ class ModJDSimpleContactFormHelper {
          $dest = $tmppath.'/jdscf/'.$folder.'/'.$filename;
 
          $return = null;
-         if (JFile::upload($src, $dest)) {
+         if (File::upload($src, $dest)) {
             $return = $dest;
          }
          return $return;
       }
    }
 
-   public static function getJoomlaVersion() {
-      $jversion = new JVersion();
-      return $jversion::MAJOR_VERSION;
-   }
+
 }
