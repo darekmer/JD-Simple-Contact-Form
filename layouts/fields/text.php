@@ -7,13 +7,16 @@
  */
 // no direct access
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Language\Text;
+
 extract($displayData);
 $attrs = [];
 $attrs[] = 'id="' . $field->id . '"';
 switch ($field->type) {
    case 'email':
       $attrs[] = 'data-parsley-type="email"';
-      $attrs[] = 'data-parsley-type-message="' . JText::_("MOD_JDSCF_EMAIL_REQUIRED_ERROR") . '"';
+      $attrs[] = 'data-parsley-type-message="' . Text::_("MOD_JDSCF_EMAIL_REQUIRED_ERROR") . '"';
       break;
    case 'number':
       $attrs[] = 'data-parsley-type="number"';
@@ -28,20 +31,20 @@ if (isset($field->placeholder) && !empty($field->placeholder)) {
 if ($field->type == 'text' || $field->type == 'number') {
    if (!empty($field->min_length)) {
       $attrs[] = 'data-parsley-minlength="' . $field->min_length . '"';
-      $attrs[] = 'data-parsley-minlength-message="' . JText::sprintf('MOD_JDSCF_NUMBER_MIN_LENGTH_ERROR', strip_tags($label), $field->min_length) . '"';
+      $attrs[] = 'data-parsley-minlength-message="' . Text::sprintf('MOD_JDSCF_NUMBER_MIN_LENGTH_ERROR', strip_tags($label), $field->min_length) . '"';
    }
    if (!empty($field->max_length)) {
       $attrs[] = 'data-parsley-maxlength="' . $field->max_length . '"';
-      $attrs[] = 'data-parsley-maxlength-message="' . JText::sprintf('MOD_JDSCF_NUMBER_MAX_LENGTH_ERROR', strip_tags($label), $field->max_length) . '"';
+      $attrs[] = 'data-parsley-maxlength-message="' . Text::sprintf('MOD_JDSCF_NUMBER_MAX_LENGTH_ERROR', strip_tags($label), $field->max_length) . '"';
    }
    if ($field->type == 'number') {
       if (!empty($field->min)) {
          $attrs[] = 'data-parsley-min="' . $field->min . '"';
-         $attrs[] = 'data-parsley-min-message="' . JText::sprintf('MOD_JDSCF_NUMBER_MIN_ERROR', strip_tags($label), $field->min) . '"';
+         $attrs[] = 'data-parsley-min-message="' . Text::sprintf('MOD_JDSCF_NUMBER_MIN_ERROR', strip_tags($label), $field->min) . '"';
       }
       if (!empty($field->max)) {
          $attrs[] = 'data-parsley-max="' . $field->max . '"';
-         $attrs[] = 'data-parsley-max-message="' . JText::sprintf('MOD_JDSCF_NUMBER_MAX_ERROR', strip_tags($label), $field->max) . '"';
+         $attrs[] = 'data-parsley-max-message="' . Text::sprintf('MOD_JDSCF_NUMBER_MAX_ERROR', strip_tags($label), $field->max) . '"';
       }
    }
 }
@@ -49,9 +52,9 @@ if ($field->type == 'text' || $field->type == 'number') {
 if ($field->required) {
    $attrs[] = 'required';
    if (isset($field->custom_error) && !empty(trim($field->custom_error))) {
-      $attrs[] = 'data-parsley-required-message="' . JText::sprintf($field->custom_error) . '"';
+      $attrs[] = 'data-parsley-required-message="' . Text::sprintf($field->custom_error) . '"';
    } else {
-      $attrs[] = 'data-parsley-required-message="' . JText::sprintf('MOD_JDSCF_REQUIRED_ERROR', strip_tags($label)) . '"';
+      $attrs[] = 'data-parsley-required-message="' . Text::sprintf('MOD_JDSCF_REQUIRED_ERROR', strip_tags($label)) . '"';
    }
 }
 ?>
