@@ -9,13 +9,17 @@
 // no direct access
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\ModuleHelper;
+use Joomla\CMS\Uri\Uri;
+
 require_once dirname(__FILE__) . '/helper.php';
 
-$document = JFactory::getDocument();
-$document->addStylesheet(JURI::root() . 'media/mod_jdsimplecontactform/assets/css/style.css?v=' . $document->getMediaVersion());
+$document = Factory::getDocument();
+$document->addStylesheet(URI::root() . 'media/mod_jdsimplecontactform/assets/css/style.css?v=' . $document->getMediaVersion());
 $document->addStylesheet('//cdn.jsdelivr.net/npm/pikaday/css/pikaday.css');
 
 $layout = $params->get('layout', 'default');
 // Adding Module Class Suffix.
-$moduleclass_sfx = htmlspecialchars($params->get('moduleclass_sfx'), ENT_COMPAT, 'UTF-8');
-require JModuleHelper::getLayoutPath('mod_jdsimplecontactform', $layout);
+$moduleclass_sfx = htmlspecialchars($params->get('moduleclass_sfx', ''), ENT_COMPAT, 'UTF-8');
+require ModuleHelper::getLayoutPath('mod_jdsimplecontactform', $layout);
