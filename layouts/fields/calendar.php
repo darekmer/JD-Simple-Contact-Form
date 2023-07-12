@@ -7,6 +7,10 @@
  */
 // no direct access
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Factory;
+
 extract($displayData);
 $attrs = [];
 $attrs[] = 'id="' . $field->id . '"';
@@ -21,13 +25,13 @@ if (!empty($field->id)) {
 if ($field->required) {
     $attrs[] = 'required';
     if (isset($field->custom_error) && !empty(trim($field->custom_error))) {
-        $attrs[] = 'data-parsley-required-message="' . JText::sprintf($field->custom_error) . '"';
+        $attrs[] = 'data-parsley-required-message="' . Text::sprintf($field->custom_error) . '"';
     } else {
-        $attrs[] = 'data-parsley-required-message="' . JText::sprintf('MOD_JDSCF_REQUIRED_ERROR', strip_tags($label)) . '"';
+        $attrs[] = 'data-parsley-required-message="' . Text::sprintf('MOD_JDSCF_REQUIRED_ERROR', strip_tags($label)) . '"';
     }
 }
 
-$document = JFactory::getDocument();
+$document = Factory::getDocument();
 $style = 'label.calendar_icon {'
     . 'display: inherit;'
     . 'cursor: pointer;'
@@ -50,11 +54,11 @@ $document->addStyleDeclaration($style);
 
 <?php
 
-$js = 'var monthNames = [ "'. JText::_("MOD_JDSCF_JANUARY") .'", "'. JText::_("MOD_JDSCF_FEBRUARY") .'", "'. JText::_("MOD_JDSCF_MARCH") .'", "'. JText::_("MOD_JDSCF_APRIL") .'", "'. JText::_("MOD_JDSCF_MAY") .'", "'. JText::_("MOD_JDSCF_JUNE") .'", "'. JText::_("MOD_JDSCF_JULY") .'", "'. JText::_("MOD_JDSCF_AUGUST") .'", "'. JText::_("MOD_JDSCF_SEPTEMBER") .'", "'. JText::_("MOD_JDSCF_OCTOBER") .'", "'. JText::_("MOD_JDSCF_NOVEMBER") .'", "'. JText::_("MOD_JDSCF_DECEMBER") .'" ];';
+$js = 'var monthNames = [ "'. Text::_("MOD_JDSCF_JANUARY") .'", "'. Text::_("MOD_JDSCF_FEBRUARY") .'", "'. Text::_("MOD_JDSCF_MARCH") .'", "'. Text::_("MOD_JDSCF_APRIL") .'", "'. Text::_("MOD_JDSCF_MAY") .'", "'. Text::_("MOD_JDSCF_JUNE") .'", "'. Text::_("MOD_JDSCF_JULY") .'", "'. Text::_("MOD_JDSCF_AUGUST") .'", "'. Text::_("MOD_JDSCF_SEPTEMBER") .'", "'. Text::_("MOD_JDSCF_OCTOBER") .'", "'. Text::_("MOD_JDSCF_NOVEMBER") .'", "'. Text::_("MOD_JDSCF_DECEMBER") .'" ];';
 
-$js .= 'var weekDays = [ "'. JText::_("MOD_JDSCF_SUNDAY") .'", "'. JText::_("MOD_JDSCF_MONDAY") .'", "'. JText::_("MOD_JDSCF_TUESDAY") .'", "'. JText::_("MOD_JDSCF_WEDNESDAY") .'", "'. JText::_("MOD_JDSCF_THURSDAY") .'", "'. JText::_("MOD_JDSCF_FRIDAY") .'", "'. JText::_("MOD_JDSCF_SATURDAY") .'" ];';
+$js .= 'var weekDays = [ "'. Text::_("MOD_JDSCF_SUNDAY") .'", "'. Text::_("MOD_JDSCF_MONDAY") .'", "'. Text::_("MOD_JDSCF_TUESDAY") .'", "'. Text::_("MOD_JDSCF_WEDNESDAY") .'", "'. Text::_("MOD_JDSCF_THURSDAY") .'", "'. Text::_("MOD_JDSCF_FRIDAY") .'", "'. Text::_("MOD_JDSCF_SATURDAY") .'" ];';
 
-$js .= 'var shortWeekDays    = [ "'. JText::_("MOD_JDSCF_SUN") .'", "'. JText::_("MOD_JDSCF_MON") .'", "'. JText::_("MOD_JDSCF_TUE") .'", "'. JText::_("MOD_JDSCF_WED") .'", "'. JText::_("MOD_JDSCF_THUR") .'", "'. JText::_("MOD_JDSCF_FRI") .'", "'. JText::_("MOD_JDSCF_SAT") .'" ];';
+$js .= 'var shortWeekDays    = [ "'. Text::_("MOD_JDSCF_SUN") .'", "'. Text::_("MOD_JDSCF_MON") .'", "'. Text::_("MOD_JDSCF_TUE") .'", "'. Text::_("MOD_JDSCF_WED") .'", "'. Text::_("MOD_JDSCF_THUR") .'", "'. Text::_("MOD_JDSCF_FRI") .'", "'. Text::_("MOD_JDSCF_SAT") .'" ];';
 
 $js .= 'var jdscf_picker_' . $module->id . ' = new Pikaday({'
 . 'field: document.getElementById("' . $field->id . '")';
