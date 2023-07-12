@@ -7,8 +7,8 @@ JD Simple Contact form extension is a simple form builder for the Joomla ideally
 <center><a target="_blank" href="https://www.joomdev.com/products/extensions/jd-simple-contact-form"><img src="https://www.joomdev.com/images/extensions/jd-simple-contact-form/banner.jpg" /></a></center>
 
 # Requirements
-* Joomla: 3.8 +
-* PHP : 5.6+
+* Joomla: 4.0 +
+* PHP : 7.2+
 
 ## Here is what's included:
 - Unlimited number of form fields.
