@@ -7,9 +7,17 @@
  */
 // no direct access
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\Registry\Registry;
+use Joomla\CMS\Uri\Uri;
+
 $title = $params->get('title', '');
 $description = $params->get('description', '');
-$session = JFactory::getSession();
+$session = Factory::getSession();
 $message = $session->get('jdscf-message-' . $module->id, '');
 $captcha = $params->get('captcha', 0);
 //checking if single cc is enabled
@@ -23,7 +31,7 @@ if (!empty($message)) {
    ?>
    <div class="jd-simple-contact-form jd-simple-contact-message-<?php echo $module->id; ?> <?php echo $moduleclass_sfx; ?>">
       <div class="cookie-notice alert alert-info" role="alert">
-         <?php echo JText::_("MOD_JDSCF_NOTICE_ON_COOKIES_DISABLED"); ?>
+         <?php echo Text::_("MOD_JDSCF_NOTICE_ON_COOKIES_DISABLED"); ?>
       </div>
       <div id="jdscf-message-<?php echo $module->id; ?>"></div>
       <div class="simple-contact-form-loader module-<?php echo $module->id; ?> d-none">
@@ -31,13 +39,13 @@ if (!empty($message)) {
       </div>
       <div class="jd-simple-contact-form-header">
          <?php if (!empty($title)) { ?>
-            <h5 class="jd-simple-contact-description-title card-title"><?php echo JText::_($title); ?></h5>
+            <h5 class="jd-simple-contact-description-title card-title"><?php echo Text::_($title); ?></h5>
          <?php } ?>
          <?php if (!empty($description)) { ?>
-            <p class="jd-simple-contact-description card-subtitle mb-2 text-muted"><?php echo JText::_($description); ?></p>
+            <p class="jd-simple-contact-description card-subtitle mb-2 text-muted"><?php echo Text::_($description); ?></p>
          <?php } ?>
       </div>
-      <form method="POST" action="<?php echo JURI::root(); ?>index.php?option=com_ajax&module=jdsimplecontactform&format=json&method=submit" data-parsley-validate data-parsley-errors-wrapper="<ul class='text-danger list-unstyled mt-2 small'></ul>" data-parsley-error-class="border-danger" data-parsley-success-class="border-success" id="simple-contact-form-<?php echo $module->id; ?>" enctype="multipart/form-data">
+      <form method="POST" action="<?php echo URI::root(); ?>index.php?option=com_ajax&module=jdsimplecontactform&format=json&method=submit" data-parsley-validate data-parsley-errors-wrapper="<ul class='text-danger list-unstyled mt-2 small'></ul>" data-parsley-error-class="border-danger" data-parsley-success-class="border-success" id="simple-contact-form-<?php echo $module->id; ?>" enctype="multipart/form-data">
          <div class="jdscf-row">
             <?php
                ModJDSimpleContactFormHelper::renderForm($params, $module);
@@ -46,23 +54,18 @@ if (!empty($message)) {
                   echo $singleCC->render(['params' => $params]);
                }
                if ($captcha) {
-                  $captchaType = $params->get('captchaPlugins') == "" ? JFactory::getConfig()->get('captcha') : $params->get('captchaPlugins');
-                  JPluginHelper::importPlugin('captcha', $captchaType);
+                  $captchaType = $params->get('captchaPlugins') == "" ? Factory::getConfig()->get('captcha') : $params->get('captchaPlugins');
+                  PluginHelper::importPlugin('captcha', $captchaType);
 
-                  if( ModJDSimpleContactFormHelper::getJoomlaVersion() < 4 ) {
-                     $dispatcher = JEventDispatcher::getInstance();
-                     $dispatcher->trigger('onInit', ['jdscf_recaptcha_' . $module->id]);
-                  } else {
-                     $dispatcher = \Joomla\CMS\Factory::getApplication();
-                     $dispatcher->triggerEvent('onInit', ['jdscf_recaptcha_' . $module->id]);
-                  }
-                  
-                  $plugin = JPluginHelper::getPlugin('captcha', $captchaType);
+                  $dispatcher = Factory::getApplication();
+                  $dispatcher->triggerEvent('onInit', ['jdscf_recaptcha_' . $module->id]);
+                                    
+                  $plugin = PluginHelper::getPlugin('captcha', $captchaType);
                   
                   if ( $captchaType == "recaptcha" ) {
                      // Recaptcha: I am not a robot
                      if (!empty($plugin)) {
-                        $plugin_params = new JRegistry($plugin->params);
+                        $plugin_params = new Registry($plugin->params);
                         $attributes = [];
                         $attributes['data-theme'] = $plugin_params->get('theme2', '');
                         $attributes['data-size'] = $plugin_params->get('size', '');
@@ -81,7 +84,7 @@ if (!empty($message)) {
                   } elseif ( $captchaType == "recaptcha_invisible" ) {
                      // Invisible recaptcha
                      if (!empty($plugin)) {
-                        $plugin_params = new JRegistry($plugin->params);
+                        $plugin_params = new Registry($plugin->params);
                      ?>
                         <div id='recaptcha' class="g-recaptcha" data-sitekey="<?php echo $plugin_params->get('public_key', ''); ?>"  data-size="invisible"></div>
                      <?php
@@ -89,14 +92,9 @@ if (!empty($message)) {
                   } elseif ( !empty($captchaType) ) {
                      // Display captcha plugin fields
                      if (!empty($plugin)) {
-                        $plugin_params = new JRegistry($plugin->params);
-                        
-                        if( ModJDSimpleContactFormHelper::getJoomlaVersion() < 4 ) {
-                           $captchaHtml = $dispatcher->trigger('onDisplay', ['jdscf_recaptcha_' . $module->id, 'jdscf_recaptcha_' . $module->id]);
-                        } else {
-                           $captchaHtml = $dispatcher->triggerEvent('onDisplay', ['jdscf_recaptcha_' . $module->id, 'jdscf_recaptcha_' . $module->id]);
-                        }
-                        
+                        $plugin_params = new Registry($plugin->params);
+                        $captchaHtml = $dispatcher->triggerEvent('onDisplay', ['jdscf_recaptcha_' . $module->id, 'jdscf_recaptcha_' . $module->id]);
+                                                
                         if (!empty($captchaHtml)) {
                            ?>
                            <div class="jdscf-col-md-12">
@@ -123,14 +121,14 @@ if (!empty($message)) {
 
          </div>
          
-         <input type="hidden" name="returnurl" value="<?php echo urlencode(JUri::getInstance()); ?>"/>
+         <input type="hidden" name="returnurl" value="<?php echo urlencode(Uri::getInstance()); ?>"/>
          <input type="hidden" name="id" value="<?php echo $module->id; ?>" />
-         <?php echo JHtml::_('form.token'); ?>
+         <?php echo HtmlHelper::_('form.token'); ?>
       </form>
    </div>
    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
    <script src="//parsleyjs.org/dist/parsley.min.js"></script>
-   <script src="<?php echo JURI::root(); ?>media/mod_jdsimplecontactform/assets/js/moment.min.js"></script>
+   <script src="<?php echo URI::root(); ?>media/mod_jdsimplecontactform/assets/js/moment.min.js"></script>
    <script src="//cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
    <script>
       <?php
@@ -175,7 +173,7 @@ if (!empty($message)) {
                   var _loading = $('.simple-contact-form-loader.module-<?php echo $module->id; ?>');
                   if (_form.parsley().isValid()) {
                      $.ajax({
-                        url: '<?php echo JURI::root(); ?>index.php?option=com_ajax&module=jdsimplecontactform&format=json&method=submitForm',
+                        url: '<?php echo URI::root(); ?>index.php?option=com_ajax&module=jdsimplecontactform&format=json&method=submitForm',
                         data: formData,
                         type: 'POST',
                         beforeSend: function () {
@@ -198,7 +196,7 @@ if (!empty($message)) {
                               _loading.addClass('d-none');
                               
                               if ( response.message == "[]" ) {
-                                 showMessage<?php echo $module->id; ?>("error", "<?php echo JText::_("MOD_JDSCF_UNSUPPORTED_MAIL_CLIENT_ERROR"); ?>");
+                                 showMessage<?php echo $module->id; ?>("error", "<?php echo Text::_("MOD_JDSCF_UNSUPPORTED_MAIL_CLIENT_ERROR"); ?>");
                               }
                               else if(typeof response.message == "string") 
                               {
@@ -216,7 +214,7 @@ if (!empty($message)) {
                         },
                         error: function (response) {
                            _loading.addClass('d-none');
-                           showMessage<?php echo $module->id; ?>("error", "<?php echo JText::_("MOD_JDSCF_AJAX_ERROR_ON_SUBMIT"); ?>");
+                           showMessage<?php echo $module->id; ?>("error", "<?php echo Text::_("MOD_JDSCF_AJAX_ERROR_ON_SUBMIT"); ?>");
                         }
                      });
                   }
